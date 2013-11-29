@@ -1,0 +1,147 @@
+package ru.vsu.cs;
+
+import java.util.Random;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: bardakov
+ * Date: 29.11.13
+ * Time: 13:58
+ * To change this template use File | Settings | File Templates.
+ */
+public class NeuralNetwork {
+    public static final int INPUT=4;
+    public static final int HIDDEN=3;
+    public static final int OUTPUT=4;
+    public static final double LEARN = 0.1;
+    public static final double HIGHT = 1.0;
+    public static final double LOW = -1.5;
+    public double[][] wih = new double[INPUT+1][HIDDEN];
+    public double[][] who = new double[HIDDEN+1][INPUT];
+
+    public double[] inputs = new double[INPUT];
+    public double[] hidden = new double[HIDDEN];
+    public double[] target = new double[OUTPUT];
+    public double[] actual = new double[OUTPUT];
+
+    public double[] erro = new double[OUTPUT];
+    public double[] errh = new double[HIDDEN];
+
+    public String[] strings = new String[]{
+        "Shoot",
+        "UseGrenade",
+        "UseMedkit",
+        "UseMed",
+        "UseEat",
+        "Search",
+        "Hide"
+    };
+
+    /**
+     * победитель получает все
+     * @param vector
+     * @return
+     */
+    public int action(double[] vector){
+        int index, sel;
+        double max;
+        sel = 0;
+        max = vector[sel];
+        for(index = 0; index < OUTPUT; index++)
+            if(vector[index] > max){
+                max = vector[index];
+                sel = index;
+            }
+        return sel;
+    }
+
+    /**
+     * функция производящая обучение
+     * "Алгоритм обратного распространения ошибки"
+     */
+    public void backPropagate(){
+      //ошибка выходного слоя
+        for(int out = 0; out < OUTPUT; out++){
+            erro[out] = (target[out] - actual[out])*
+                    sigmoidDerivative(actual[out]);
+        }
+        //ошибка скрытого слоя
+        for(int hid = 0; hid < HIDDEN; hid++){
+            errh[hid] = 0.0;
+            for(int out = 0; out < OUTPUT; out++)
+                errh[hid] += erro[out] * who[hid][out];
+            errh[hid] *= sigmoidDerivative(hidden[hid]);
+        }
+        //обновить веса для выходного слоя
+        for(int out = 0; out < OUTPUT; out++){
+            for(int hid = 0; hid < HIDDEN; hid++){
+                who[hid][out] += LEARN * erro[out] * hidden[hid];
+            }
+            //обновить смещение
+            who[HIDDEN][out] += LEARN*erro[out];
+        }
+        //обновить веса для скрытого слоя
+        for(int hid = 0; hid < HIDDEN; hid++){
+            for(int inp = 0; inp < INPUT; inp++)
+                wih[inp][hid] += LEARN * errh[hid] * inputs[inp];
+            //обновить смещение
+            wih[INPUT][hid] += LEARN * errh[hid];
+        }
+    }
+
+    /**
+     * вычисление выхода при
+     * прямом распространении
+     */
+    public void feedForward(){
+        double sum;
+        //вычислить вход в скрытый слой
+        for(int hid = 0; hid < HIDDEN; hid++){
+            sum = 0.0;
+            for(int inp = 0; inp < INPUT; inp++){
+                sum += inputs[inp]*wih[inp][hid];
+            }
+            sum+=wih[INPUT][hid];
+            hidden[hid] = sigmoid(sum);
+        }
+        //вычислить вход в выходной слой
+        for(int out = 0; out < OUTPUT; out++){
+            sum = 0.0;
+            for(int hid = 0; hid<HIDDEN;hid++)
+                sum += hidden[hid]*who[hid][out];
+            actual[out] = sigmoid(sum);
+        }
+    }
+
+    /**
+     * производная сигмоида
+     * @param val  - значение функции
+     * @return  - значение производной
+     */
+    public double sigmoidDerivative(double val){
+        return ( val * ( 1.0 - val ) );
+    }
+
+    /**
+     * функция активации
+     * @param val - аргумент функции
+     * @return значение функции
+     */
+    public double sigmoid(double val){
+        return (1.0 / (1.0 + Math.exp(-val)));
+    }
+
+    /**
+     * функция инициализирует сетку начальными весами
+     */
+    public void assignRandomWeights(){
+        Random rnd = new Random(System.currentTimeMillis());
+        for(int inp = 0; inp < INPUT; inp++)
+            for(int hid = 0; hid < HIDDEN; hid++)
+                wih[inp][hid] = rnd.nextDouble()%HIGHT + LOW;
+        for(int hid = 0; hid < HIDDEN; hid++)
+            for(int out = 0; out < OUTPUT; out++)
+                who[hid][out] = rnd.nextDouble()%HIGHT + LOW;
+    }
+
+}

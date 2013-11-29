@@ -1,0 +1,28 @@
+package ru.vsu.cs;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: bardakov
+ * Date: 29.11.13
+ * Time: 14:44
+ * To change this template use File | Settings | File Templates.
+ */
+public class Element {
+    public double health;
+    public double knife;
+    public double gun;
+    public double enemy;
+    double[] out = new double[NeuralNetwork.OUTPUT];
+
+    public Element(double health,
+                   double knife,
+                   double gun,
+                   double enemy,
+                   double[] out){
+        this.health = health;
+        this.knife = knife;
+        this.gun = gun;
+        this.enemy = enemy;
+        this.out = out;
+    }
+}

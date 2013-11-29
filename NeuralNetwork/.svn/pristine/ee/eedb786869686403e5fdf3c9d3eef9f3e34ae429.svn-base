@@ -1,0 +1,16 @@
+package ru.vsu.cs;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: bardakov
+ * Date: 29.11.13
+ * Time: 14:49
+ * To change this template use File | Settings | File Templates.
+ */
+public class Samples {
+    public static final int MAX_SAMPLES = 18;
+
+    public Element[] samples = new Element[]{
+       new Element(2.0, 0.0, 0.0, 0.0, new double[]{0.0, 0.0, 1.0, 0.0})
+    };
+}
